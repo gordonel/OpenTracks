@@ -7,6 +7,8 @@ import de.dennisguse.opentracks.util.UnitConversions;
 
 public class Speed {
 
+    private static final double MPS_TO_KMH = Distance.M_TO_KM / (UnitConversions.S_TO_MIN * UnitConversions.MIN_TO_HR);
+
     public static Speed of(Distance distance, Duration duration) {
         if (duration.isZero()) {
             return zero();
@@ -78,20 +80,16 @@ public class Speed {
         return speed_mps > speed.speed_mps;
     }
 
-    public boolean greaterOrEqualThan(Speed speed) {
-        return speed_mps >= speed.speed_mps;
-    }
-
     public double toMPS() {
         return speed_mps;
     }
 
     public double toKMH() {
-        return speed_mps * UnitConversions.MPS_TO_KMH;
+        return speed_mps * MPS_TO_KMH;
     }
 
     public double toMPH() {
-        return toKMH() * UnitConversions.KM_TO_MI;
+        return toKMH() * Distance.KM_TO_MI;
     }
 
     public Duration toPace(boolean metricUnit) {
@@ -99,7 +97,7 @@ public class Speed {
             return Duration.ofSeconds(0);
         }
 
-        double distance = speed_mps * (metricUnit ? UnitConversions.M_TO_KM : UnitConversions.M_TO_MI);
+        double distance = speed_mps * (metricUnit ? Distance.M_TO_KM : Distance.M_TO_MI);
         return Duration.ofSeconds(Math.round(1 / distance));
     }
 
@@ -107,7 +105,7 @@ public class Speed {
         return to(metricUnit ? Unit.KMH : Unit.MPH);
     }
 
-    public double to(Unit unit) {
+    private double to(Unit unit) {
         switch (unit) {
             case KMH:
                 return toKMH();
@@ -118,7 +116,7 @@ public class Speed {
         }
     }
 
-    public enum Unit {
+    private enum Unit {
         KMH,
         MPH,
     }

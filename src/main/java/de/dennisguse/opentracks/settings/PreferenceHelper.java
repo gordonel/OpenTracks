@@ -3,8 +3,8 @@ package de.dennisguse.opentracks.settings;
 import android.content.Context;
 
 import de.dennisguse.opentracks.R;
+import de.dennisguse.opentracks.content.data.Distance;
 import de.dennisguse.opentracks.util.PreferencesUtils;
-import de.dennisguse.opentracks.util.UnitConversions;
 
 final class PreferenceHelper {
 
@@ -36,21 +36,19 @@ final class PreferenceHelper {
 
         for (int i = 0; i < entryValues.length; i++) {
             int value = Integer.parseInt(entryValues[i]);
-            String displayValue;
             if (metricUnits) {
-                displayValue = context.getString(R.string.value_integer_meter, value);
                 if (value == recordingDistanceIntervalDefault) {
                     entries[i] = context.getString(R.string.value_integer_meter_recommended, value);
                 } else {
-                    entries[i] = displayValue;
+                    entries[i] = context.getString(R.string.value_integer_meter, value);
                 }
             } else {
-                int feet = (int) (value * UnitConversions.M_TO_FT);
-                displayValue = context.getString(R.string.value_integer_feet, feet);
+                Distance distance = Distance.of(value);
+                int feet = (int) distance.toFT();
                 if (value == recordingDistanceIntervalDefault) {
                     entries[i] = context.getString(R.string.value_integer_feet_recommended, feet);
                 } else {
-                    entries[i] = displayValue;
+                    entries[i] = context.getString(R.string.value_integer_feet, feet);
                 }
             }
         }
@@ -66,27 +64,23 @@ final class PreferenceHelper {
 
         for (int i = 0; i < entryValues.length; i++) {
             int value = Integer.parseInt(entryValues[i]);
-            String displayValue;
             if (metricUnits) {
-                displayValue = context.getString(R.string.value_integer_meter, value);
                 if (value == maxRecordingDistanceDefault) {
                     entries[i] = context.getString(R.string.value_integer_meter_recommended, value);
                 } else {
-                    entries[i] = displayValue;
+                    entries[i] = context.getString(R.string.value_integer_meter, value);
                 }
             } else {
-                int feet = (int) (value * UnitConversions.M_TO_FT);
+                Distance distance = Distance.of(value);
+                int feet = (int) distance.toFT();
                 if (feet < 2000) {
-                    displayValue = context.getString(R.string.value_integer_feet, feet);
                     if (value == maxRecordingDistanceDefault) {
                         entries[i] = context.getString(R.string.value_integer_feet_recommended, feet);
                     } else {
-                        entries[i] = displayValue;
+                        entries[i] = context.getString(R.string.value_integer_feet, feet);
                     }
                 } else {
-                    double mile = feet * UnitConversions.FT_TO_MI;
-                    displayValue = context.getString(R.string.value_float_mile, mile);
-                    entries[i] = displayValue;
+                    entries[i] = context.getString(R.string.value_float_mile, distance.toMI());
                 }
             }
         }
@@ -104,9 +98,7 @@ final class PreferenceHelper {
 
         for (int i = 0; i < entryValues.length; i++) {
             int value = Integer.parseInt(entryValues[i]);
-            String displayValue;
             if (metricUnits) {
-                displayValue = context.getString(R.string.value_integer_meter, value);
                 if (value == recordingGPSAccuracyDefault) {
                     entries[i] = context.getString(R.string.value_integer_meter_recommended, value);
                 } else if (value == recordingGPSAccuracyExcellent) {
@@ -114,27 +106,25 @@ final class PreferenceHelper {
                 } else if (value == recordingGPSAccuracyPoor) {
                     entries[i] = context.getString(R.string.value_integer_meter_poor_gps, value);
                 } else {
-                    entries[i] = displayValue;
+                    entries[i] = context.getString(R.string.value_integer_meter, value);
                 }
             } else {
-                int feet = (int) (value * UnitConversions.M_TO_FT);
+                Distance distance = Distance.of(value);
+                int feet = (int) distance.toFT();
                 if (feet < 2000) {
-                    displayValue = context.getString(R.string.value_integer_feet, feet);
-
                     if (value == recordingGPSAccuracyDefault) {
                         entries[i] = context.getString(R.string.value_integer_feet_recommended, feet);
                     } else if (value == recordingGPSAccuracyExcellent) {
                         entries[i] = context.getString(R.string.value_integer_feet_excellent_gps, feet);
                     } else {
-                        entries[i] = displayValue;
+                        entries[i] = context.getString(R.string.value_integer_feet, feet);
                     }
                 } else {
-                    double mile = feet * UnitConversions.FT_TO_MI;
-                    displayValue = context.getString(R.string.value_float_mile, mile);
+                    double mile = distance.toMI();
                     if (value == recordingGPSAccuracyPoor) {
                         entries[i] = context.getString(R.string.value_float_mile_poor_gps, mile);
                     } else {
-                        entries[i] = displayValue;
+                        entries[i] = context.getString(R.string.value_float_mile, mile);
                     }
                 }
             }

@@ -166,15 +166,15 @@ public class StringUtils {
             return new Pair<>(null, context.getString(metricUnits ? R.string.unit_meter : R.string.unit_feet));
         }
 
-        if (metricUnits) {
-            if (distance.greaterThan(Distance.of(500))) {
+        if (distance.greaterThan(Distance.one(metricUnits).multipliedBy((0.5)))) {
+            if (metricUnits) {
                 return new Pair<>(formatDecimal(distance.toKM()), context.getString(R.string.unit_kilometer));
             } else {
-                return new Pair<>(formatDecimal(distance.toM()), context.getString(R.string.unit_meter));
+                return new Pair<>(formatDecimal(distance.toMI()), context.getString(R.string.unit_mile));
             }
         } else {
-            if (distance.greaterThan(Distance.of(0.5 * UnitConversions.M_TO_MI))) {
-                return new Pair<>(formatDecimal(distance.toMI()), context.getString(R.string.unit_mile));
+            if (metricUnits) {
+                return new Pair<>(formatDecimal(distance.toM()), context.getString(R.string.unit_meter));
             } else {
                 return new Pair<>(formatDecimal(distance.toFT()), context.getString(R.string.unit_feet));
             }
@@ -305,9 +305,7 @@ public class StringUtils {
         String value = context.getString(R.string.value_unknown);
         String unit = context.getString(metricUnits ? R.string.unit_meter : R.string.unit_feet);
         if (altitude_m != null) {
-            if (!metricUnits) {
-                altitude_m *= (float) UnitConversions.M_TO_FT;
-            }
+            altitude_m = (float) Distance.of(altitude_m).toM_or_FT(metricUnits);
             value = StringUtils.formatDecimal(altitude_m, 0);
         }
         return new Pair<>(value, unit);

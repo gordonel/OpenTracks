@@ -36,7 +36,6 @@ import de.dennisguse.opentracks.chart.ChartView;
 import de.dennisguse.opentracks.content.data.Distance;
 import de.dennisguse.opentracks.content.data.Speed;
 import de.dennisguse.opentracks.content.data.TrackPoint;
-import de.dennisguse.opentracks.util.UnitConversions;
 
 import static org.junit.Assert.assertEquals;
 
@@ -133,8 +132,8 @@ public class ChartFragmentTest {
         float[] results = new float[4];
         Location.distanceBetween(trackPoint2.getLatitude(), trackPoint2.getLongitude(),
                 trackPoint3.getLatitude(), trackPoint3.getLongitude(), results);
-        double distance1 = results[0] * UnitConversions.M_TO_KM;
-        assertEquals(distance1, point.getTimeOrDistance(), 0.01);
+        Distance distance1 = Distance.of(results[0]);
+        assertEquals(distance1.toKM(), point.getTimeOrDistance(), 0.01);
 
         // The fourth location is a new location, and use metric.
         TrackPoint trackPoint4 = TrackStubUtils.createDefaultTrackPoint();
@@ -144,8 +143,8 @@ public class ChartFragmentTest {
         // Computes the distance between Latitude 23 and 24.
         Location.distanceBetween(trackPoint3.getLatitude(), trackPoint3.getLongitude(),
                 trackPoint4.getLatitude(), trackPoint4.getLongitude(), results);
-        double distance2 = results[0] * UnitConversions.M_TO_KM;
-        assertEquals((distance1 + distance2), point.getTimeOrDistance(), 0.01);
+        Distance distance2 = Distance.of(results[0]);
+        assertEquals(distance1.plus(distance2).toKM(), point.getTimeOrDistance(), 0.01);
     }
 
     /**
@@ -174,8 +173,8 @@ public class ChartFragmentTest {
          */
         float[] results = new float[4];
         Location.distanceBetween(trackPoint1.getLatitude(), trackPoint1.getLongitude(), trackPoint2.getLatitude(), trackPoint2.getLongitude(), results);
-        double distance1 = results[0] * UnitConversions.M_TO_KM * UnitConversions.KM_TO_MI;
-        assertEquals(distance1, point.getTimeOrDistance(), 0.01);
+        Distance distance1 = Distance.of(results[0]);
+        assertEquals(distance1.toMI(), point.getTimeOrDistance(), 0.01);
 
         // The third location is a new location, and use imperial.
         TrackPoint trackPoint3 = TrackStubUtils.createDefaultTrackPoint();
@@ -187,8 +186,8 @@ public class ChartFragmentTest {
          * And for we set using * imperial, the distance should be multiplied by UnitConversions.KM_TO_MI.
          */
         Location.distanceBetween(trackPoint2.getLatitude(), trackPoint2.getLongitude(), trackPoint3.getLatitude(), trackPoint3.getLongitude(), results);
-        double distance2 = results[0] * UnitConversions.M_TO_KM * UnitConversions.KM_TO_MI;
-        assertEquals(distance1 + distance2, point.getTimeOrDistance(), 0.01);
+        Distance distance2 = Distance.of(results[0]);
+        assertEquals(distance1.plus(distance2).toMI(), point.getTimeOrDistance(), 0.01);
     }
 
     /**
@@ -264,7 +263,7 @@ public class ChartFragmentTest {
         trackPoint2.setTime(trackPoint1.getTime().plusMillis(222));
         trackPoint2.setSpeed(Speed.of(130f));
         point = chartFragment.createPendingPoint(trackPoint2);
-        assertEquals(130.0 * UnitConversions.MPS_TO_KMH, point.getSpeed(), 0.01);
+        assertEquals(Speed.of(130f).toKMH(), point.getSpeed(), 0.01);
     }
 
     /**
@@ -289,7 +288,7 @@ public class ChartFragmentTest {
         trackPoint2.setTime(trackPoint2.getTime().plusMillis(222));
         trackPoint2.setSpeed(Speed.of(102f));
         point = chartFragment.createPendingPoint(trackPoint2);
-        assertEquals(102.0 * UnitConversions.MPS_TO_KMH * UnitConversions.KM_TO_MI, point.getSpeed(), 0.01);
+        assertEquals(Speed.of(102f).toMPH(), point.getSpeed(), 0.01);
     }
 
     /**
@@ -314,7 +313,7 @@ public class ChartFragmentTest {
         trackPoint2.setTime(trackPoint2.getTime().plusMillis(222));
         trackPoint2.setSpeed(Speed.of(102f));
         point = chartFragment.createPendingPoint(trackPoint2);
-        assertEquals(HOURS_PER_UNIT / (102.0 * UnitConversions.MPS_TO_KMH), point.getPace(), 0.01);
+        assertEquals(HOURS_PER_UNIT / (Speed.of(102f).toKMH()), point.getPace(), 0.01);
     }
 
     /**

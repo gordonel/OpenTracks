@@ -88,6 +88,25 @@ public class StringUtilsTest {
     }
 
     /**
+     * Tests {@link StringUtils#formatDistance(android.content.Context, Distance, boolean)}.
+     */
+    @Test
+    public void testGetDistanceParts() {
+        // A large number in metric
+        assertEquals("5", StringUtils.getDistanceParts(context, Distance.of(5000), true).first);
+        assertEquals("km", StringUtils.getDistanceParts(context, Distance.of(5000), true).second);
+        // A large number in imperial
+        assertEquals("3.11", StringUtils.getDistanceParts(context, Distance.of(5000), false).first);
+        assertEquals("mi", StringUtils.getDistanceParts(context, Distance.of(5000), false).second);
+        // A small number in metric
+        assertEquals("100", StringUtils.getDistanceParts(context, Distance.of(100), true).first);
+        assertEquals("m", StringUtils.getDistanceParts(context, Distance.of(100), true).second);
+        // A small number in imperial
+        assertEquals("328.08", StringUtils.getDistanceParts(context, Distance.of(100), false).first);
+        assertEquals("ft", StringUtils.getDistanceParts(context, Distance.of(100), false).second);
+    }
+
+    /**
      * Tests {@link StringUtils#formatCData(String)}.
      */
     @Test

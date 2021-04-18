@@ -134,7 +134,7 @@ public final class SensorDataCycling {
                     long wheelDiff = UintUtils.diff(wheelRevolutionsCount, previous.wheelRevolutionsCount, UintUtils.UINT16_MAX);
                     wheelDiff = Math.abs(wheelDiff); //HACK for Garmin Speed 2 as some of those seem to count backwards
 
-                    Distance distance = Distance.of(wheelDiff * wheel_circumference_mm * UnitConversions.MM_TO_M);
+                    Distance distance = Distance.ofMilimeter(wheelDiff * wheel_circumference_mm);
                     Distance distanceOverall = distance;
                     if (previous.hasValue()) {
                         distanceOverall = distance.plus(previous.getValue().distanceOverall);

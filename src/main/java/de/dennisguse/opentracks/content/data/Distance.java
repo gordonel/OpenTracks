@@ -4,9 +4,19 @@ import androidx.annotation.NonNull;
 
 import java.util.Objects;
 
-import de.dennisguse.opentracks.util.UnitConversions;
-
 public class Distance {
+
+    private static final double MM_TO_M = 0.001;
+
+    private static final double KM_TO_M = 1000.0;
+    static final double M_TO_KM = 1 / KM_TO_M;
+
+    static final double KM_TO_MI = 0.621371192;
+    private static final double MI_TO_KM = 1 / KM_TO_MI;
+    static final double M_TO_MI = M_TO_KM * KM_TO_MI;
+
+    private static final double MI_TO_FT = 5280.0;
+
 
     public static Distance of(double distance_m) {
         return new Distance(distance_m);
@@ -16,12 +26,17 @@ public class Distance {
         return of(Float.parseFloat(distance_m));
     }
 
+
+    public static Distance ofMilimeter(double distance_mm) {
+        return of(distance_mm * MM_TO_M);
+    }
+
     public static Distance ofMile(double distance_mile) {
-        return of(distance_mile * UnitConversions.MI_TO_M);
+        return of(distance_mile * MI_TO_KM * KM_TO_M);
     }
 
     public static Distance ofKilometer(double distance_km) {
-        return of(distance_km * UnitConversions.KM_TO_M);
+        return of(distance_km * KM_TO_M);
     }
 
     public static Distance one(boolean metricUnit) {
@@ -71,7 +86,7 @@ public class Distance {
     }
 
     public boolean lessThan(@NonNull Distance distance) {
-        return !greaterThan(distance);
+        return !greaterOrEqualThan(distance);
     }
 
     public boolean greaterThan(@NonNull Distance distance) {
@@ -87,25 +102,34 @@ public class Distance {
     }
 
     public double toKM() {
-        return distance_m * UnitConversions.M_TO_KM;
+        return distance_m * M_TO_KM;
     }
 
     public double toFT() {
-        return distance_m * UnitConversions.M_TO_FT;
+        return distance_m * M_TO_KM * KM_TO_MI * MI_TO_FT;
     }
 
     public double toMI() {
-        return toKM() * UnitConversions.KM_TO_MI;
+        return toKM() * KM_TO_MI;
     }
 
+    //TODO Rename to toKM_or_MI
     public double to(boolean metricUnit) {
         return to(metricUnit ? Unit.KM : Unit.MILES);
     }
 
-    public double to(Unit unit) {
+    public double toM_or_FT(boolean metricUnit) {
+        return to(metricUnit ? Unit.M : Unit.FT);
+    }
+
+    private double to(Unit unit) {
         switch (unit) {
+            case M:
+                return toM();
             case KM:
                 return toKM();
+            case FT:
+                return toFT();
             case MILES:
                 return toMI();
             default:
@@ -113,11 +137,15 @@ public class Distance {
         }
     }
 
-    public enum Unit {
+    private enum Unit {
+        M,
         KM,
+        FT,
         MILES
     }
 
+    //TODO We check on exact match of a double. That is probably not the best approach considering multiplication etc.
+    //Can we store data as in milimeter as long?
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -3,6 +3,7 @@ package de.dennisguse.opentracks.chart;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
+import de.dennisguse.opentracks.content.data.Distance;
 import de.dennisguse.opentracks.content.data.TrackPoint;
 import de.dennisguse.opentracks.stats.TrackStatistics;
 import de.dennisguse.opentracks.stats.TrackStatisticsUpdater;
@@ -13,7 +14,7 @@ public class ChartPoint {
     private double timeOrDistance;
 
     //Y-axis
-    private double altitude;
+    private final double altitude;
     private double speed;
     private double pace;
     private double heartRate = Double.NaN;
@@ -34,10 +35,9 @@ public class ChartPoint {
             timeOrDistance = trackStatistics.getTotalTime().toMillis();
         }
 
-        altitude = trackStatisticsUpdater.getSmoothedAltitude();
-        if (!metricUnits) {
-            altitude *= UnitConversions.M_TO_FT;
-        }
+        altitude = Distance
+                .of(trackStatisticsUpdater.getSmoothedAltitude())
+                .toM_or_FT(metricUnits);
 
         speed = trackStatisticsUpdater.getSmoothedSpeed().to(metricUnits);
         pace = trackStatisticsUpdater.getSmoothedSpeed().toPace(metricUnits).toMillis() * UnitConversions.MS_TO_S * UnitConversions.S_TO_MIN;
