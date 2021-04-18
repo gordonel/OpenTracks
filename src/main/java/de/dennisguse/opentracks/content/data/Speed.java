@@ -3,18 +3,20 @@ package de.dennisguse.opentracks.content.data;
 import java.time.Duration;
 import java.util.Objects;
 
-import de.dennisguse.opentracks.util.UnitConversions;
+import de.dennisguse.opentracks.util.DurationUtils;
 
 public class Speed {
 
-    private static final double MPS_TO_KMH = Distance.M_TO_KM / (UnitConversions.S_TO_MIN * UnitConversions.MIN_TO_HR);
+    private static final double MIN_TO_HR = 1 / 60.0;
+
+    private static final double MPS_TO_KMH = Distance.M_TO_KM / (DurationUtils.S_TO_MIN * MIN_TO_HR);
 
     public static Speed of(Distance distance, Duration duration) {
         if (duration.isZero()) {
             return zero();
         }
 
-        return new Speed(distance.toM() / (duration.toMillis() * UnitConversions.MS_TO_S));
+        return new Speed(distance.toM() / (duration.toMillis() * DurationUtils.MS_TO_S));
     }
 
     public static Speed of(double speed_mps) {

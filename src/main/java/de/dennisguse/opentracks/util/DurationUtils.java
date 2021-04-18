@@ -15,30 +15,26 @@
  */
 package de.dennisguse.opentracks.util;
 
+import java.time.Duration;
+
 /**
  * Unit conversion constants.
  *
  * @author Sandor Dornbush
  */
-public class UnitConversions {
-
-    // Time //TODO Use Duration
-    // multiplication factor to convert seconds to milliseconds
-    public static final long S_TO_MS = 1000;
+public class DurationUtils {
 
     // multiplication factor to convert milliseconds to seconds
-    @Deprecated
-    public static final double MS_TO_S = 1d / S_TO_MS;
-    // multiplication factor to convert minutes to seconds
-    @Deprecated
-    public static final double MIN_TO_S = 60.0;
+    public static final double MS_TO_S = 1d / Duration.ofSeconds(1).toMillis();
     // multiplication factor to convert seconds to minutes
-    @Deprecated
-    public static final double S_TO_MIN = 1 / MIN_TO_S;
-    // multiplication factor to convert minutes to hours
-    @Deprecated
-    public static final double MIN_TO_HR = 1 / 60.0;
 
-    private UnitConversions() {
+    public static final double S_TO_MIN = 1 / 60.0;
+    // multiplication factor to convert minutes to hours
+
+    public static double toMin(Duration duration) {
+        return duration.toMillis() * DurationUtils.MS_TO_S * DurationUtils.S_TO_MIN;
+    }
+
+    private DurationUtils() {
     }
 }

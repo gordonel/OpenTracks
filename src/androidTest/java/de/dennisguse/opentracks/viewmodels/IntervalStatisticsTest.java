@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.time.Duration;
 import java.util.List;
 
 import de.dennisguse.opentracks.content.data.Distance;
@@ -12,7 +13,6 @@ import de.dennisguse.opentracks.content.data.Track;
 import de.dennisguse.opentracks.content.data.TrackPoint;
 import de.dennisguse.opentracks.stats.TrackStatistics;
 import de.dennisguse.opentracks.stats.TrackStatisticsUpdater;
-import de.dennisguse.opentracks.util.UnitConversions;
 
 import static org.junit.Assert.assertEquals;
 
@@ -117,17 +117,17 @@ public class IntervalStatisticsTest {
         IntervalStatistics intervalStatistics = new IntervalStatistics(trackPoints, Distance.of(distanceInterval));
         List<IntervalStatistics.Interval> intervalList = intervalStatistics.getIntervalList();
         Distance totalDistance = Distance.of(0);
-        float totalTime = 0L;
+        Duration totalTime = Duration.ofMillis(0);
         float totalGain = 0f;
         for (IntervalStatistics.Interval i : intervalList) {
             totalDistance = totalDistance.plus(i.getDistance());
-            totalTime += i.getDistance().toM() / i.getSpeed().toMPS();
+            totalTime = totalTime.plus(Duration.ofSeconds((long) (i.getDistance().toM() / i.getSpeed().toMPS())));
             totalGain += i.getGain_m();
         }
 
         // then
         assertEquals(trackStatistics.getTotalDistance().toM(), totalDistance.toM(), 0.01);
-        assertEquals(trackStatistics.getTotalTime().toMillis(), totalTime * UnitConversions.S_TO_MS, 1);
+        assertEquals(trackStatistics.getTotalTime(), totalTime);
         assertEquals(intervalList.size(), (int) Math.ceil(trackStatistics.getTotalDistance().toM() / distanceInterval));
         assertEquals(totalGain, trackPoints.size() * TestDataUtil.ALTITUDE_GAIN, 0.1);
 

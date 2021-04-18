@@ -7,7 +7,7 @@ import de.dennisguse.opentracks.content.data.Distance;
 import de.dennisguse.opentracks.content.data.TrackPoint;
 import de.dennisguse.opentracks.stats.TrackStatistics;
 import de.dennisguse.opentracks.stats.TrackStatisticsUpdater;
-import de.dennisguse.opentracks.util.UnitConversions;
+import de.dennisguse.opentracks.util.DurationUtils;
 
 public class ChartPoint {
     //X-axis
@@ -40,7 +40,7 @@ public class ChartPoint {
                 .toM_or_FT(metricUnits);
 
         speed = trackStatisticsUpdater.getSmoothedSpeed().to(metricUnits);
-        pace = trackStatisticsUpdater.getSmoothedSpeed().toPace(metricUnits).toMillis() * UnitConversions.MS_TO_S * UnitConversions.S_TO_MIN;
+        pace = DurationUtils.toMin(trackStatisticsUpdater.getSmoothedSpeed().toPace(metricUnits));
         if (trackPoint != null) {
             if (trackPoint.hasHeartRate()) {
                 heartRate = trackPoint.getHeartRate_bpm();

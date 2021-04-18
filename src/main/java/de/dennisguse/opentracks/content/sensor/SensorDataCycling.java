@@ -10,8 +10,8 @@ import java.time.Duration;
 
 import de.dennisguse.opentracks.content.data.Distance;
 import de.dennisguse.opentracks.content.data.Speed;
+import de.dennisguse.opentracks.util.DurationUtils;
 import de.dennisguse.opentracks.util.UintUtils;
-import de.dennisguse.opentracks.util.UnitConversions;
 
 /**
  * Provides cadence in rpm and speed in milliseconds from Bluetooth LE Cycling Cadence and Speed sensors.
@@ -21,6 +21,8 @@ import de.dennisguse.opentracks.util.UnitConversions;
 public final class SensorDataCycling {
 
     private static final String TAG = SensorDataCycling.class.getSimpleName();
+
+    private static final long S_TO_MS = Duration.ofSeconds(1).toMillis();
 
     private SensorDataCycling() {
     }
@@ -63,14 +65,14 @@ public final class SensorDataCycling {
 
         public void compute(Cadence previous) {
             if (hasData() && previous != null && previous.hasData()) {
-                float timeDiff_ms = UintUtils.diff(crankRevolutionsTime, previous.crankRevolutionsTime, UintUtils.UINT16_MAX) / 1024f * UnitConversions.S_TO_MS;
+                float timeDiff_ms = UintUtils.diff(crankRevolutionsTime, previous.crankRevolutionsTime, UintUtils.UINT16_MAX) / 1024f * S_TO_MS;
                 if (timeDiff_ms <= 0) {
                     Log.e(TAG, "Timestamps difference is invalid: cannot compute cadence.");
                     value = null;
                 } else {
                     long crankDiff = UintUtils.diff(crankRevolutionsCount, previous.crankRevolutionsCount, UintUtils.UINT32_MAX);
                     float cadence_ms = crankDiff / timeDiff_ms;
-                    value = (float) (cadence_ms / UnitConversions.MS_TO_S / UnitConversions.S_TO_MIN);
+                    value = (float) (cadence_ms / DurationUtils.MS_TO_S / DurationUtils.S_TO_MIN);
                 }
             }
         }
@@ -125,7 +127,7 @@ public final class SensorDataCycling {
 
         public void compute(DistanceSpeed previous, int wheel_circumference_mm) {
             if (hasData() && previous != null && previous.hasData()) {
-                float timeDiff_ms = UintUtils.diff(wheelRevolutionsTime, previous.wheelRevolutionsTime, UintUtils.UINT16_MAX) / 1024f * UnitConversions.S_TO_MS;
+                float timeDiff_ms = UintUtils.diff(wheelRevolutionsTime, previous.wheelRevolutionsTime, UintUtils.UINT16_MAX) / 1024f * S_TO_MS;
                 Duration timeDiff = Duration.ofMillis((long) timeDiff_ms);
                 if (timeDiff.isZero() || timeDiff.isNegative()) {
                     Log.e(TAG, "Timestamps difference is invalid: cannot compute cadence.");
