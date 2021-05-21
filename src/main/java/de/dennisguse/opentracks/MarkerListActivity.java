@@ -114,7 +114,10 @@ public class MarkerListActivity extends AbstractActivity implements DeleteMarker
 
         contentProviderUtils = new ContentProviderUtils(this);
 
-        track = trackId != null ? contentProviderUtils.getTrack(trackId) : null;
+        ContentProviderUtils.OutOfMainThread.newInstance(contentProviderUtils).getTrack(trackId).observe(this, track -> {
+            this.track = track;
+            invalidateOptionsMenu();
+        });
 
         viewBinding.markerList.setEmptyView(viewBinding.markerListEmpty);
         viewBinding.markerList.setOnItemClickListener((parent, view, position, id) -> {

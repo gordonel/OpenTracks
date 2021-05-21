@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
 import java.time.Duration;
@@ -51,6 +52,7 @@ import de.dennisguse.opentracks.content.data.TracksColumns;
 import de.dennisguse.opentracks.stats.SensorStatistics;
 import de.dennisguse.opentracks.stats.TrackStatistics;
 import de.dennisguse.opentracks.util.FileUtils;
+import de.dennisguse.opentracks.util.TrackIconUtils;
 import de.dennisguse.opentracks.util.UUIDUtils;
 
 /**
@@ -801,5 +803,62 @@ public class ContentProviderUtils {
 
         }
         return sensorStatistics;
+    }
+
+
+    public static class OutOfMainThread {
+
+        private final ContentProviderUtils contentProviderUtils;
+
+        private OutOfMainThread(ContentProviderUtils contentProviderUtils) {
+            this.contentProviderUtils = contentProviderUtils;
+        }
+
+        public static OutOfMainThread newInstance(ContentProviderUtils cpu) {
+            return new OutOfMainThread(cpu);
+        }
+
+        public MutableLiveData<Track> getTrack(Track.Id trackId) {
+            MutableLiveData<Track> liveData = new MutableLiveData<>();
+            new Thread(() -> {
+                if (trackId != null) {
+                    liveData.postValue(contentProviderUtils.getTrack(trackId));
+                } else {
+                    liveData.postValue(null);
+                }
+            }).start();
+            return liveData;
+        }
+
+        public MutableLiveData<Cursor> getTrackCursor(String selection, String[] selectionArgs, String sortOrder) {
+            MutableLiveData<Cursor> liveData = new MutableLiveData<>();
+            new Thread(() -> liveData.postValue(contentProviderUtils.getTrackCursor(selection, selectionArgs, sortOrder))).start();
+            return liveData;
+        }
+
+        public MutableLiveData<Boolean> updateTrack(Context context, Track track, String name, String category, String description) {
+            MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+            new Thread(() -> {
+                boolean update = false;
+                if (name != null) {
+                    track.setName(name);
+                    update = true;
+                }
+                if (category != null) {
+                    track.setCategory(category);
+                    track.setIcon(TrackIconUtils.getIconValue(context, category));
+                    update = true;
+                }
+                if (description != null) {
+                    track.setDescription(description);
+                    update = true;
+                }
+                if (update) {
+                    contentProviderUtils.updateTrack(track);
+                }
+                liveData.postValue(update);
+            }).start();
+            return liveData;
+        }
     }
 }
