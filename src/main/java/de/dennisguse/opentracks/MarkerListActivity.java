@@ -110,28 +110,10 @@ public class MarkerListActivity extends AbstractActivity implements DeleteMarker
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
+
         Track.Id trackId = getIntent().getParcelableExtra(EXTRA_TRACK_ID);
-
         contentProviderUtils = new ContentProviderUtils(this);
-
-        ContentProviderUtils.OutOfMainThread.newInstance(contentProviderUtils).getTrack(trackId).observe(this, track -> {
-            this.track = track;
-            invalidateOptionsMenu();
-        });
-
-        viewBinding.markerList.setEmptyView(viewBinding.markerListEmpty);
-        viewBinding.markerList.setOnItemClickListener((parent, view, position, id) -> {
-            resourceCursorAdapter.markerInvalid(id);
-            Intent intent = IntentUtils.newIntent(MarkerListActivity.this, MarkerDetailActivity.class)
-                    .putExtra(MarkerDetailActivity.EXTRA_MARKER_ID, new Marker.Id(id));
-            startActivity(intent);
-        });
-
-        resourceCursorAdapter = new MarkerResourceCursorAdapter(this, R.layout.list_item);
-        ScrollVisibleViews scrollVisibleViews = new ScrollVisibleViews(resourceCursorAdapter);
-        viewBinding.markerList.setOnScrollListener(scrollVisibleViews);
-        viewBinding.markerList.setAdapter(resourceCursorAdapter);
-        ActivityUtils.configureListViewContextualMenu(viewBinding.markerList, contextualActionModeCallback);
+        ContentProviderUtils.OutOfMainThread.newInstance(contentProviderUtils).getTrack(trackId).observe(this, this::setUI);
 
         trackRecordingServiceConnection = new TrackRecordingServiceConnection(bindCallback);
     }
@@ -147,7 +129,6 @@ public class MarkerListActivity extends AbstractActivity implements DeleteMarker
         super.onResume();
         trackRecordingServiceConnection.bind(this);
         this.invalidateOptionsMenu();
-        loadData(getIntent());
     }
 
     @Override
@@ -198,6 +179,27 @@ public class MarkerListActivity extends AbstractActivity implements DeleteMarker
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setUI(Track track) {
+        this.track = track;
+        invalidateOptionsMenu();
+
+        viewBinding.markerList.setEmptyView(viewBinding.markerListEmpty);
+        viewBinding.markerList.setOnItemClickListener((parent, view, position, id) -> {
+            resourceCursorAdapter.markerInvalid(id);
+            Intent intent = IntentUtils.newIntent(MarkerListActivity.this, MarkerDetailActivity.class)
+                    .putExtra(MarkerDetailActivity.EXTRA_MARKER_ID, new Marker.Id(id));
+            startActivity(intent);
+        });
+
+        resourceCursorAdapter = new MarkerResourceCursorAdapter(this, R.layout.list_item);
+        ScrollVisibleViews scrollVisibleViews = new ScrollVisibleViews(resourceCursorAdapter);
+        viewBinding.markerList.setOnScrollListener(scrollVisibleViews);
+        viewBinding.markerList.setAdapter(resourceCursorAdapter);
+        ActivityUtils.configureListViewContextualMenu(viewBinding.markerList, contextualActionModeCallback);
+
+        loadData(getIntent());
     }
 
     /**
