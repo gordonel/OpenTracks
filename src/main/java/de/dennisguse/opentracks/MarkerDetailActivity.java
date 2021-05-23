@@ -73,27 +73,37 @@ public class MarkerDetailActivity extends AbstractActivity implements DeleteMark
             return;
         }
 
+        setUI(markerId);
+    }
+
+    @Override
+    protected View getRootView() {
+        viewBinding = MarkerDetailActivityBinding.inflate(getLayoutInflater());
+        return viewBinding.getRoot();
+    }
+
+    @Override
+    public void onMarkerDeleted() {
+        runOnUiThread(this::finish);
+    }
+    
+    private void setUI(Marker.Id markerId) {
         ContentProviderUtils contentProviderUtils = new ContentProviderUtils(this);
         Marker marker = contentProviderUtils.getMarker(markerId);
-
         markerIds = new ArrayList<>();
-        int markerIndex = -1;
-
-        //TODO Load only markerIds, not the whole marker
-        try (Cursor cursor = contentProviderUtils.getMarkerCursor(marker.getTrackId(), null, -1)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                for (int i = 0; i < cursor.getCount(); i++) {
-                    Marker currentMarker = contentProviderUtils.createMarker(cursor);
-                    markerIds.add(currentMarker.getId());
-                    if (markerId.equals(currentMarker.getId())) {
-                        markerIndex = markerIds.size() - 1;
-                    }
-
-                    cursor.moveToNext();
+        ContentProviderUtils.OutOfMainThread.newInstance(contentProviderUtils).getMarkers(marker.getTrackId(), null, -1).observe(this, markerList -> {
+            int markerIndex = -1;
+            for (Marker m : markerList) {
+                markerIds.add(m.getId());
+                if (markerId.equals(m.getId())) {
+                    markerIndex = markerIds.size() - 1;
                 }
             }
-        }
+            setAdapter(markerIndex);
+        });
+    }
 
+    private void setAdapter(int markerIndex) {
         final MarkerDetailPagerAdapter markerAdapter = new MarkerDetailPagerAdapter(getSupportFragmentManager());
         viewBinding.makerDetailActivityViewPager.setAdapter(markerAdapter);
         viewBinding.makerDetailActivityViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -112,17 +122,6 @@ public class MarkerDetailActivity extends AbstractActivity implements DeleteMark
             }
         });
         viewBinding.makerDetailActivityViewPager.setCurrentItem(markerIndex == -1 ? 0 : markerIndex);
-    }
-
-    @Override
-    protected View getRootView() {
-        viewBinding = MarkerDetailActivityBinding.inflate(getLayoutInflater());
-        return viewBinding.getRoot();
-    }
-
-    @Override
-    public void onMarkerDeleted() {
-        runOnUiThread(this::finish);
     }
 
     /**
