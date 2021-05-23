@@ -861,19 +861,19 @@ public class ContentProviderUtils {
             return liveData;
         }
 
-        public MutableLiveData<List<Marker>> getMarkers(@NonNull Track.Id trackId, @Nullable Marker.Id minMarkerId, int maxCount) {
-            MutableLiveData<List<Marker>> liveData = new MutableLiveData<>();
+        public MutableLiveData<List<Marker.Id>> getMarkerIds(@NonNull Track.Id trackId, @Nullable Marker.Id minMarkerId, int maxCount) {
+            MutableLiveData<List<Marker.Id>> liveData = new MutableLiveData<>();
             new Thread(() -> {
-                List<Marker> markers = new ArrayList<>();
+                List<Marker.Id> markerIds = new ArrayList<>();
                 try (Cursor cursor = contentProviderUtils.getMarkerCursor(trackId, minMarkerId, maxCount)) {
                     if (cursor != null && cursor.moveToFirst()) {
                         for (int i = 0; i < cursor.getCount(); i++) {
-                            markers.add(contentProviderUtils.createMarker(cursor));
+                            markerIds.add(contentProviderUtils.createMarker(cursor).getId());
                             cursor.moveToNext();
                         }
                     }
                 }
-                liveData.postValue(markers);
+                liveData.postValue(markerIds);
             }).start();
             return liveData;
         }
