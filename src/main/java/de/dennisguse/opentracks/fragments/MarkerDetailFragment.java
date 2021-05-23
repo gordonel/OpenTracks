@@ -244,7 +244,6 @@ public class MarkerDetailFragment extends Fragment {
 
         ListItemUtils.setTextView(getActivity(), viewBinding.markerDetailMarkerName, marker.getName(), hasPhoto);
 
-
         ListItemUtils.setTextView(getActivity(), viewBinding.markerDetailMarkerCategory, StringUtils.getCategory(marker.getCategory()), hasPhoto);
 
         ListItemUtils.setTextView(getActivity(), viewBinding.markerDetailMarkerDescription, marker.getDescription(), hasPhoto);
